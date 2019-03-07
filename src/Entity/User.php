@@ -49,6 +49,15 @@ class User implements UserInterface
     private $password;
 
     /**
+     * @Assert\NotBlank()
+     * @Assert\Expression(
+     *     "this.getPassword() === this.getRetypePassword()",
+     *     message="Passwords does not match"
+     * )
+     */
+    private $retypePassword;
+
+    /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"read"})
      * @Assert\NotBlank()
@@ -191,5 +200,15 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    public function getRetypePassword()
+    {
+        return $this->retypePassword;
+    }
+
+    public function setRetypePassword($retypePassword): void
+    {
+        $this->retypePassword = $retypePassword;
     }
 }
