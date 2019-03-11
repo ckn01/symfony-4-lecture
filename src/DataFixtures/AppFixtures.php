@@ -30,9 +30,12 @@ class AppFixtures extends Fixture
 
     public function loadBlogPosts(ObjectManager $manager)
     {
-        $user = $this->getReference('user_admin');
+        $arrUser = ['user_admin', 'user_other'];
 
         for ($i=0;$i<100;$i++) {
+            shuffle($arrUser);
+            $user = $this->getReference(reset($arrUser));
+
             $blogPost = new BlogPost();
             $blogPost->setTitle($this->faker->realText(20))
                 ->setContent($this->faker->realText())
@@ -49,12 +52,17 @@ class AppFixtures extends Fixture
 
     public function loadComments(ObjectManager $manager)
     {
+        $arrUser = ['user_admin', 'user_other'];
+
         for ($i=0;$i<100;$i++) {
             for ($j=0;$j<rand(1, 10);$j++) {
+                shuffle($arrUser);
+                $user = $this->getReference(reset($arrUser));
+
                 $comment = new Comment();
                 $comment->setContent($this->faker->realText())
                         ->setPublished($this->faker->dateTimeThisYear)
-                        ->setAuthor($this->getReference('user_admin'))
+                        ->setAuthor($user)
                         ->setBlogPost($this->getReference("blog_post_$i"));
 
                 $manager->persist($comment);
@@ -69,15 +77,29 @@ class AppFixtures extends Fixture
         $user = new User();
         $user->setUsername('admin')
             ->setEmail('admin@blog.co')
-            ->setName('Faisal Uje')
+            ->setName('Admin')
             ->setPassword($this->passwordEncoder->encodePassword(
                 $user,
-                'admin123'
+                'Admin123'
             ));
 
         $this->addReference('user_admin', $user);
 
         $manager->persist($user);
+
+        $user = new User();
+        $user->setUsername('faisaluje')
+            ->setEmail('faisaluje@blog.co')
+            ->setName('Faisal Uje')
+            ->setPassword($this->passwordEncoder->encodePassword(
+                $user,
+                'Faisaluje123'
+            ));
+
+        $this->addReference('user_other', $user);
+
+        $manager->persist($user);
+
         $manager->flush();
     }
 }
