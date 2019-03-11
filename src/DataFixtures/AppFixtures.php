@@ -14,6 +14,7 @@ class AppFixtures extends Fixture
 {
     private $passwordEncoder;
     private $faker;
+    private const USERS = ['user_admin', 'user_other'];
 
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
@@ -30,11 +31,11 @@ class AppFixtures extends Fixture
 
     public function loadBlogPosts(ObjectManager $manager)
     {
-        $arrUser = ['user_admin', 'user_other'];
+        $users = self::USERS;
 
         for ($i=0;$i<100;$i++) {
-            shuffle($arrUser);
-            $user = $this->getReference(reset($arrUser));
+            shuffle($users);
+            $user = $this->getReference(reset($users));
 
             $blogPost = new BlogPost();
             $blogPost->setTitle($this->faker->realText(20))
@@ -52,12 +53,12 @@ class AppFixtures extends Fixture
 
     public function loadComments(ObjectManager $manager)
     {
-        $arrUser = ['user_admin', 'user_other'];
+        $users = self::USERS;
 
         for ($i=0;$i<100;$i++) {
             for ($j=0;$j<rand(1, 10);$j++) {
-                shuffle($arrUser);
-                $user = $this->getReference(reset($arrUser));
+                shuffle($users);
+                $user = $this->getReference(reset($users));
 
                 $comment = new Comment();
                 $comment->setContent($this->faker->realText())
