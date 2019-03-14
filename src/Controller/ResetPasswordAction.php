@@ -47,6 +47,8 @@ class ResetPasswordAction
         $data->setPassword(
             $this->userPasswordEncoder->encodePassword($data, $data->getNewPassword())
         );
+        // After password change, old tokens are still valid
+        $data->setPasswordChangeDate(time());
 
         $this->entityManager->flush();
 
