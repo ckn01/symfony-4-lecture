@@ -8,6 +8,7 @@
 
 namespace App\Controller;
 
+use App\Security\UserConfirmationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,5 +28,15 @@ class DefaultController extends AbstractController
            'action' => 'index',
            'time' => time()
         ]);
+    }
+
+    /**
+     * @Route("/confrim-user/{token}", name="default_confirmation_token")
+     */
+    public function confirmUser(string $token, UserConfirmationService $userConfirmationService)
+    {
+        $userConfirmationService->confirmUser($token);
+
+        return $this->redirectToRoute('app_default_index');
     }
 }
