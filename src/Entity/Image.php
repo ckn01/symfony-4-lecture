@@ -10,6 +10,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
@@ -38,6 +39,7 @@ class Image
 
     /**
      * @Vich\UploadableField(mapping="images", fileNameProperty="url")
+     * @Assert\NotBlank()
      */
     private $file;
 
