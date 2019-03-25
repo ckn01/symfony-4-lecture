@@ -91,7 +91,7 @@ class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Image")
      * @ORM\JoinTable()
-     * @Groups({"post"})
+     * @Groups({"post","get-blog-post-with-author"})
      */
     private $images;
 
