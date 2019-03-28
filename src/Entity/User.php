@@ -27,7 +27,8 @@ use App\Controller\ResetPasswordAction;
  *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
  *              "denormalization_context"={
  *                  "groups"={"put"}
- *              }
+ *              },
+ *              "validation_groups"={"put"}
  *          },
  *          "put-reset-password"={
  *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
@@ -36,14 +37,16 @@ use App\Controller\ResetPasswordAction;
  *              "controller"=ResetPasswordAction::class,
  *              "denormalization_context"={
  *                  "groups"={"put-reset-password"}
- *              }
+ *              },
+ *              "validation_groups"={"put-reset-password"}
  *          }
  *     },
  *     collectionOperations={
  *          "post"={
  *              "denormalization_context"={
  *                  "groups"={"post"}
- *              }
+ *              },
+ *              "validation_groups"={"post"}
  *           }
  *      }
  * )
