@@ -50,7 +50,7 @@ use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
  *      "whitelist": {"id","author","slug","title", "content"}
  * })
  * @ApiResource(
- *     attributes={"order"={"published": "DESC"}, "pagination_client_enabled"=true},
+ *     attributes={"order"={"published": "DESC"}, "maximum_items_per_page"=50},
  *     itemOperations={
  *          "get"={
  *              "normalization_context"={
