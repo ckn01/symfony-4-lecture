@@ -89,7 +89,7 @@ class AppFixtures extends Fixture
             $authorReference = $this->getRandomUserReference($blogPost);
             $blogPost->setTitle($this->faker->realText(20))
                 ->setContent($this->faker->realText())
-                ->setPublished($this->faker->dateTimeThisCentury)
+                ->setPublished($this->faker->dateTimeBetween('-2 years'))
                 ->setAuthor($authorReference)
                 ->setSlug($this->faker->slug);
 
