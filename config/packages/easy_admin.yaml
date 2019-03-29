@@ -7,6 +7,15 @@ easy_admin:
             controller: App\Controller\UserAdminController
         BlogPost:
             class: App\Entity\BlogPost
+            list:
+                actions: [ { name: 'Show' } ]
+            show:
+                fields:
+                    - id
+                    - title
+                    - published
+                    - { property: 'comments', template: 'easy_admin/BlogPost/comments.html.twig' }
+                    - images
         Comment:
             class: App\Entity\Comment
         Image:
