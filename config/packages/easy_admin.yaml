@@ -5,3 +5,4 @@ easy_admin:
         - App\Entity\BlogPost
         - App\Entity\Comment
         - App\Entity\User
+        - App\Entity\Image
