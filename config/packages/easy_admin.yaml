@@ -2,7 +2,12 @@ easy_admin:
     site_name: 'Admin nu <em style="font-size: 80%;">Abdi.</em>'
     entities:
 #        # List the entity class name you want to manage
-        - App\Entity\BlogPost
-        - App\Entity\Comment
-        - App\Entity\User
-        - App\Entity\Image
+        User:
+            class: App\Entity\User
+            controller: App\Controller\UserAdminController
+        BlogPost:
+            class: App\Entity\BlogPost
+        Comment:
+            class: App\Entity\Comment
+        Image:
+            class: App\Entity\Image
