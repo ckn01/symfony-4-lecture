@@ -5,8 +5,10 @@ namespace App\Tests\EventSubscriber;
 
 
 use ApiPlatform\Core\EventListener\EventPriorities;
+use App\Entity\BlogPost;
 use App\Entity\User;
 use App\EventSubscriber\AuthoredEntitySubscriber;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -27,6 +29,20 @@ class AuthoredEntitySubscriberTest extends TestCase
 
     public function testSetAuthorCall()
     {
+        $tokenStorageMock = $this->getTokenStorageMock();
+
+        $eventMock = $this->getEventMock();
+
+        (new AuthoredEntitySubscriber($tokenStorageMock))->getAuthenticatedUser(
+            $eventMock
+        );
+    }
+
+    /**
+     * @return MockObject|TokenStorageInterface
+     */
+    public function getTokenStorageMock(): MockObject
+    {
         $tokenMock = $this->getMockBuilder(TokenInterface::class)
             ->getMockForAbstractClass();
         $tokenMock->expects($this->once())
@@ -39,12 +55,22 @@ class AuthoredEntitySubscriberTest extends TestCase
             ->method('getToken')
             ->willReturn($tokenMock);
 
+        return $tokenStorageMock;
+    }
+
+    /**
+     * @return MockObject|GetResponseForControllerResultEvent
+     */
+    public function getEventMock(): MockObject
+    {
         $eventMock = $this->getMockBuilder(GetResponseForControllerResultEvent::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        (new AuthoredEntitySubscriber($tokenStorageMock))->getAuthenticatedUser(
-            $eventMock
-        );
+        $eventMock->expects($this->once())
+            ->method('getControllerResult')
+            ->willReturn(new BlogPost());
+
+        return $eventMock;
     }
 }
