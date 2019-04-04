@@ -6,6 +6,7 @@ namespace App\Tests\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\BlogPost;
+use App\Entity\Comment;
 use App\Entity\User;
 use App\EventSubscriber\AuthoredEntitySubscriber;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -42,23 +43,34 @@ class AuthoredEntitySubscriberTest extends TestCase
         );
     }
 
+    public function testNoTokenPresent()
+    {
+        $tokenStorageMock = $this->getTokenStorageMock(false);
+        $eventMock = $this->getEventMock('POST', new class {});
+
+        (new AuthoredEntitySubscriber($tokenStorageMock))->getAuthenticatedUser(
+            $eventMock
+        );
+    }
+
     public function providerSetAuthorCall(): array
     {
         return [
             [BlogPost::class, true, 'POST'],
             [BlogPost::class, false, 'GET'],
             ['NonExisting', false, 'GET'],
+            [Comment::class, true, 'POST']
         ];
     }
 
     /**
      * @return MockObject|TokenStorageInterface
      */
-    public function getTokenStorageMock(): MockObject
+    private function getTokenStorageMock(bool $hasToken = true): MockObject
     {
         $tokenMock = $this->getMockBuilder(TokenInterface::class)
             ->getMockForAbstractClass();
-        $tokenMock->expects($this->once())
+        $tokenMock->expects($hasToken ? $this->once() : $this->never())
             ->method('getUser')
             ->willReturn(new User());
 
@@ -66,7 +78,7 @@ class AuthoredEntitySubscriberTest extends TestCase
             ->getMockForAbstractClass();
         $tokenStorageMock->expects($this->once())
             ->method('getToken')
-            ->willReturn($tokenMock);
+            ->willReturn($hasToken ? $tokenMock : null);
 
         return $tokenStorageMock;
     }
@@ -74,7 +86,7 @@ class AuthoredEntitySubscriberTest extends TestCase
     /**
      * @return MockObject|GetResponseForControllerResultEvent
      */
-    public function getEventMock(string $method, $controllerResult): MockObject
+    private function getEventMock(string $method, $controllerResult): MockObject
     {
         $requestMock = $this->getMockBuilder(Request::class)
             ->getMock();
@@ -99,7 +111,7 @@ class AuthoredEntitySubscriberTest extends TestCase
     /**
      * @return MockObject
      */
-    public function getEntityMock($className, bool $shouldCallSetAuthor): MockObject
+    private function getEntityMock($className, bool $shouldCallSetAuthor): MockObject
     {
         $entityMock = $this->getMockBuilder($className)
             ->setMethods(['setAuthor'])
