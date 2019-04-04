@@ -42,7 +42,8 @@ class ResetPasswordAction
         // $reset();
 //        var_dump(array($data));die;
 
-        $this->validator->validate($data);
+        $context['groups'] = ['put-reset-password'];
+        $this->validator->validate($data, $context);
 
         $data->setPassword(
             $this->userPasswordEncoder->encodePassword($data, $data->getNewPassword())
