@@ -12,6 +12,15 @@ use Doctrine\ORM\Tools\SchemaTool;
 
 class FeatureContext extends RestContext
 {
+    const USERS = [ 'admin' => 'Secret123' ];
+    const AUTH_URL = '/api/login_check';
+    const AUTH_JSON = '
+        {
+            "username": "%s",
+            "password": "%s"
+        }
+    ';
+
     /**
      * @var AppFixtures
      */
@@ -34,6 +43,31 @@ class FeatureContext extends RestContext
         $this->fixtures = $fixtures;
         $this->matcher = (new SimpleFactory())->createMatcher();
         $this->em = $em;
+    }
+
+    /**
+     * @Given I am authenticated as :user
+     */
+    public function iAmAuthenticatedAs($user)
+    {
+        $this->request->setHttpHeader('Content-Type', 'application/ld+json');
+        $this->request->send(
+            'POST',
+            $this->locatePath(self::AUTH_URL),
+            [], [],
+            sprintf(self::AUTH_JSON, $user, self::USERS[$user])
+        );
+
+        $json = json_decode($this->request->getContent(), true);
+        // Make sure the token was returned
+        $this->assertTrue(isset($json['token']));
+
+        $token = $json['token'];
+
+        $this->request->setHttpHeader(
+            'Authorization',
+            'Bearer ' . $token
+        );
     }
 
     /**
