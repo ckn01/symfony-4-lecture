@@ -1,6 +1,7 @@
 <?php
 
 use App\DataFixtures\AppFixtures;
+use Behat\Gherkin\Node\PyStringNode;
 use Behatch\Context\RestContext;
 use Behatch\HttpCall\Request;
 use Coduo\PHPMatcher\Factory\SimpleFactory;
@@ -88,5 +89,17 @@ class FeatureContext extends RestContext
         $fixturesExecutor = new ORMExecutor($this->em, $purger);
 
         $fixturesExecutor->execute([$this->fixtures]);
+    }
+
+    /**
+     * @Given /^the JSON matches expected templates:$/
+     */
+    public function theJSONMatchesExpectedTemplates(PyStringNode $json)
+    {
+        $actual = $this->request->getContent();
+        var_dump($actual);
+        $this->assertTrue(
+            $this->matcher->match($actual, $json->getRaw())
+        );
     }
 }
