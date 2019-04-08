@@ -167,3 +167,16 @@ Feature: Manage blog posts
     }
     """
     Then the response status code should be 401
+
+
+  @blogPost
+  Scenario: Search for blog posts
+    Given I am authenticated as "admin"
+    When I add "Content-Type" header equal to "application/ld+json"
+    And I add "Accept" header equal to "application/ld+json"
+    And I send a "GET" request to "/api/blog_posts" with parameters:
+      | author.name | Faisal Uje  |
+    Then the response status code should be 200
+    And the response should be in JSON
+    And the JSON nodes should contain:
+      | @context | /api/contexts/BlogPost |
