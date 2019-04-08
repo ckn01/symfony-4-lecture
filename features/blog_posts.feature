@@ -102,8 +102,8 @@ Feature: Manage blog posts
       "blogPost": "/api/blog_posts/105"
     }
     """
-#    Then the response status code should be 400
-#    And the response should be in JSON
+    Then the response status code should be 400
+    And the response should be in JSON
     And the JSON matches expected template:
     """
     {
