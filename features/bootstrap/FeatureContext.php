@@ -102,4 +102,15 @@ class FeatureContext extends RestContext
             $this->matcher->match($actual, $json->getRaw())
         );
     }
+
+    /**
+     * @BeforeScenario @image
+     */
+    public function prepareImages()
+    {
+        copy(
+            __DIR__.'/../fixtures/Stewie.png',
+            __DIR__.'/../fixtures/files/Stewie.png'
+        );
+    }
 }
