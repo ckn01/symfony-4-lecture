@@ -2,7 +2,7 @@ Feature: Manage images
   @createSchema @image
   Scenario: Create and upload a new image
     Given I am authenticated as "admin"
-    When I add "Content-type" header equal to "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
+    When I add "Content-type" header equal to "multipart/form-data"
     And I add "Accept" header equal to "application/ld+json"
     And I send a "POST" request to "/api/images" with parameters:
       | key   | value       |
