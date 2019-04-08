@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\BlogPost;
 use App\Entity\Comment;
 use App\Entity\User;
+use App\Security\TokenGenerator;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
@@ -14,38 +15,64 @@ class AppFixtures extends Fixture
 {
     private $passwordEncoder;
     private $faker;
+    private $tokenGenerator;
 
     private const USERS = [
         [
             'username' => 'admin',
             'email' => 'admin@blog.co',
             'name' => 'Admin',
-            'password' => 'Secret123'
+            'password' => 'Secret123',
+            'roles' => [User::ROLE_SUPERADMIN],
+            'enabled' => true
         ],
         [
             'username' => 'faisaluje',
             'email' => 'faisaluje@blog.co',
             'name' => 'Faisal Uje',
-            'password' => 'Secret123'
+            'password' => 'Secret123',
+            'roles' => [User::ROLE_ADMIN],
+            'enabled' => true
         ],
         [
             'username' => 'ahmad',
             'email' => 'ahmad@blog.co',
             'name' => 'Ahmad Apandi',
-            'password' => 'Secret123'
+            'password' => 'Secret123',
+            'roles' => [User::ROLE_WRITER],
+            'enabled' => true
         ],
         [
             'username' => 'banu',
             'email' => 'banu@blog.co',
             'name' => 'Banu Supriyadi',
-            'password' => 'Secret123'
+            'password' => 'Secret123',
+            'roles' => [User::ROLE_WRITER],
+            'enabled' => true
+        ],
+        [
+            'username' => 'yadi',
+            'email' => 'yadi@blog.co',
+            'name' => 'Yadi MR',
+            'password' => 'Secret123',
+            'roles' => [User::ROLE_EDITOR],
+            'enabled' => false
+        ],
+        [
+            'username' => 'dedi',
+            'email' => 'dedi@blog.co',
+            'name' => 'Dedi Suryadi',
+            'password' => 'Secret123',
+            'roles' => [User::ROLE_COMMENTATOR],
+            'enabled' => true
         ]
     ];
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, TokenGenerator $tokenGenerator)
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->faker = Factory::create();
+        $this->tokenGenerator = $tokenGenerator;
     }
 
     public function load(ObjectManager $manager)
@@ -58,12 +85,12 @@ class AppFixtures extends Fixture
     public function loadBlogPosts(ObjectManager $manager)
     {
         for ($i=0;$i<100;$i++) {
-            $authorReference = $this->getRandomUserReference();
-
             $blogPost = new BlogPost();
+
+            $authorReference = $this->getRandomUserReference($blogPost);
             $blogPost->setTitle($this->faker->realText(20))
                 ->setContent($this->faker->realText())
-                ->setPublished($this->faker->dateTimeThisCentury)
+                ->setPublished($this->faker->dateTimeBetween('-2 years'))
                 ->setAuthor($authorReference)
                 ->setSlug($this->faker->slug);
 
@@ -80,9 +107,9 @@ class AppFixtures extends Fixture
 
         for ($i=0;$i<100;$i++) {
             for ($j=0;$j<rand(1, 10);$j++) {
-                $authorReference = $this->getRandomUserReference();
-
                 $comment = new Comment();
+
+                $authorReference = $this->getRandomUserReference($comment);
                 $comment->setContent($this->faker->realText())
                         ->setPublished($this->faker->dateTimeThisYear)
                         ->setAuthor($authorReference)
@@ -105,7 +132,15 @@ class AppFixtures extends Fixture
                 ->setPassword($this->passwordEncoder->encodePassword(
                     $user,
                     $userFixture['password']
-                ));
+                ))
+                ->setRoles($userFixture['roles']);
+            $user->setEnabled($userFixture['enabled']);
+
+            if(!$userFixture['enabled']) {
+                $user->setConfirmationToken(
+                    $this->tokenGenerator->getRandomSecureToken()
+                );
+            }
 
             $this->addReference('user_' . $userFixture['username'], $user);
 
@@ -115,8 +150,26 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    protected function getRandomUserReference(): User
+    protected function getRandomUserReference($entity): User
     {
-        return $this->getReference('user_' . self::USERS[rand(0,3)]['username']);
+        $randomUser = self::USERS[rand(0, 5)];
+
+        if ($entity instanceof BlogPost && !count(
+                array_intersect(
+                    $randomUser['roles'],
+                    [User::ROLE_SUPERADMIN, User::ROLE_ADMIN, User::ROLE_WRITER])
+            )) {
+            return $this->getRandomUserReference($entity);
+        }
+
+        if ($entity instanceof Comment && !count(
+                array_intersect(
+                    $randomUser['roles'],
+                    [User::ROLE_SUPERADMIN, User::ROLE_ADMIN, User::ROLE_WRITER, User::ROLE_COMMENTATOR])
+            )) {
+            return $this->getRandomUserReference($entity);
+        }
+
+        return $this->getReference('user_' . $randomUser['username']);
     }
 }
